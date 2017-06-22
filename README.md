@@ -11,13 +11,13 @@ openssl des-cbc  -in setup.sh  -out setup.sh.en -pass pass:$password ; openssl d
 
 
 
-./autogen.sh ; ./configure  --disable-documentation  ; 
-sed -i "s/LDFLAGS = /LDFLAGS = -all-static /g" ./src/Makefile;  sed -i "s/LDFLAGS = /LDFLAGS = -all-static /g" ./Makefile ; 
-sed -i "s/ -lev / -lev -lm  /g" ./Makefile ;  sed -i "s/ -lev / -lev -lm  /g" ./src/Makefile ; 
-make 
-ls -l src/ss-*;
-strip src/ss-*;
-ls -l src/ss-*;
-ldd src/ss-*;
+./autogen.sh ; ./configure  --disable-documentation  ;   
+sed -i "s/LDFLAGS = /LDFLAGS = -all-static /g" ./src/Makefile;  sed -i "s/LDFLAGS = /LDFLAGS = -all-static /g" ./Makefile ;   
+sed -i "s/ -lev / -lev -lm  /g" ./Makefile ;  sed -i "s/ -lev / -lev -lm  /g" ./src/Makefile ;   
+make   
+ls -l src/ss-*;   
+strip src/ss-*;   
+ls -l src/ss-*;   
+ldd src/ss-*;   
 
 
