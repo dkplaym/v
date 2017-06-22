@@ -1,7 +1,13 @@
 #
 
+edit setup:    
 
-openssl des-cbc -d -in setup.sh.en  -out setup.sh  -pass pass:0**0*k
+password=0**0*k  
+openssl des-cbc -d -in setup.sh.en  -out setup.sh  -pass pass:$password  
+
+password=0**0*k
+openssl des-cbc  -in setup.sh  -out setup.sh.en -pass pass:$password ; openssl des-cbc -d -in setup.sh.en  -out setup.sh.1  -pass pass:$password ; md5sum setup.sh setup.sh.1 ;   
+
 
 
 
