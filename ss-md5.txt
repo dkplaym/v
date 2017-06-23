@@ -3,3 +3,6 @@ bbed4f2126bc570604c7a547bbf2c6cb  ss-manager
 5fb07656482693535b4e932bb1297b60  ss-redir
 e6988bac38b5e147ae42beb8ced7b442  ss-server
 36ef48b0d7a583c866c511cfc465e705  ss-tunnel
+
+
+add to test
