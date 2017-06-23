@@ -77,7 +77,7 @@ dhcp-range=192.168.0.150,192.168.0.200,8760h
 server=127.0.0.1#9396
 cache-size=1500
 max-cache-ttl=3600
-conf-file=/etc/domain.txt
+conf-file=/tools/domain.txt
         ' > $F
 	echo -e "\n\n#$MARK" >> $F
 }
