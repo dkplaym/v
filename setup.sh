@@ -108,7 +108,8 @@ setup_client(){
 	rm /tools/domain.txt
 	cat /tools/domain_raw.txt | tr -d '\r' | grep -v '^$' | sort  | uniq  | while read line   
 	do
-	    echo ipset=/$line/gfwredir >> /tools/domain.txt    #echo server=/$line/$1#53553 >> /tools/domain.txt
+	    echo ipset=/$line/gfwredir >> /tools/domain.txt    
+	    echo server=/$line/127.0.0.1#53 >> /tools/domain.txt
 	done
 
 	write_dnsmasq
