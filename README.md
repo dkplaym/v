@@ -11,11 +11,11 @@ openssl des-cbc -d -in setup.sh.en  -out setup.sh.1  -pass pass:$password ;
 md5sum setup.sh setup.sh.1 ;   
 
 
-442c5f53aeb3bb1cda15e70c2fdc8cb4  ss-local
-bbed4f2126bc570604c7a547bbf2c6cb  ss-manager
-5fb07656482693535b4e932bb1297b60  ss-redir
-e6988bac38b5e147ae42beb8ced7b442  ss-server
-36ef48b0d7a583c866c511cfc465e705  ss-tunnel
+442c5f53aeb3bb1cda15e70c2fdc8cb4  ss-local    
+bbed4f2126bc570604c7a547bbf2c6cb  ss-manager   
+5fb07656482693535b4e932bb1297b60  ss-redir   
+e6988bac38b5e147ae42beb8ced7b442  ss-server   
+36ef48b0d7a583c866c511cfc465e705  ss-tunnel    
 
 make shadowsocks     
 
