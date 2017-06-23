@@ -70,6 +70,10 @@ write_dnsmasq(){
 
         cp  $F `bakpath`
     	echo '
+interface=brlan
+bind-interfaces
+dhcp-range=192.168.0.150,192.168.0.200,8760h
+
 server=127.0.0.1#9396
 cache-size=1500
 max-cache-ttl=3600
@@ -103,9 +107,7 @@ setup_client(){
 	    echo ipset=/$line/gfwredir >> /tools/domain.txt    #echo server=/$line/$1#53553 >> /tools/domain.txt
 	done
 
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!check  if  dnsmasq  has function to  dhcp ~~~~~~~~"
-exit 1;
-        write_dnsmasq
+	write_dnsmasq
 	service dnsmasq restart
 
 	ipset flush
