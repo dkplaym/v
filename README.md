@@ -32,3 +32,15 @@ ls -l src/ss-*;
 ldd src/ss-*;   
 
 
+server:
+/tools/ktserver -l :19393 -t 127.0.0.1:9393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46 &
+
+route:
+./ktclient -l 127.0.0.1:19393  -r <<server>>:19393  --crypt none --mtu 1200 --nocomp --mode fast2  --dscp 46 &
+
+./ss-local -s 127.0.0.1 -p 19393 -l 9394 -k <<passssss>> -m aes-256-cfb &
+
+
+
+
+
