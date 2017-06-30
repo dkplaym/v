@@ -70,10 +70,17 @@ write_dnsmasq(){
 
         cp  $F `bakpath`
     	echo '
+no-resolv
+interface=brlan
+bind-interfaces
+dhcp-range=192.168.0.150,192.168.0.200,8760h
+
+all-servers
 server=127.0.0.1#9396
+server=127.0.0.1#9397
 cache-size=1500
 max-cache-ttl=3600
-conf-file=/etc/domain.txt
+conf-file=/tools/domain.txt
         ' > $F
 	echo -e "\n\n#$MARK" >> $F
 }
@@ -96,16 +103,16 @@ setup_client(){
 	nohup /tools/ss-local -s $1 -b 0.0.0.0 -p 9393 -l 9395 -k $ENC_SSKEY -m aes-256-cfb >/dev/null 2>&1 &
 	getgitfile /tools/ss-tunnel https://github.com/dkplaym/v/raw/master/ss-tunnel
 	killall -9 ss-tunnel	
-	nohup /tools/ss-tunnel -u -s $1 -b 0.0.0.0  -p 9393 -l 9396 -L 127.0.0.1:53553 -k $ENC_SSKEY -m aes-256-cfb  2>&1 &
+	nohup /tools/ss-tunnel -u -s $1 -b 0.0.0.0  -p 9393 -l 9396 -L 8.8.8.8:53 -k $ENC_SSKEY -m aes-256-cfb  2>&1 &
+	nohup /tools/ss-tunnel -u -s $1 -b 0.0.0.0  -p 9393 -l 9397 -L 208.67.222.222:53 -k $ENC_SSKEY -m aes-256-cfb  2>&1 &
 	rm /tools/domain.txt
 	cat /tools/domain_raw.txt | tr -d '\r' | grep -v '^$' | sort  | uniq  | while read line   
 	do
-	    echo ipset=/$line/gfwredir >> /tools/domain.txt    #echo server=/$line/$1#53553 >> /tools/domain.txt
+	    echo ipset=/$line/gfwredir >> /tools/domain.txt    
+	    echo server=/$line/127.0.0.1#53 >> /tools/domain.txt
 	done
 
-echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!check  if  dnsmasq  has function to  dhcp ~~~~~~~~"
-exit 1;
-        write_dnsmasq
+	write_dnsmasq
 	service dnsmasq restart
 
 	ipset flush
