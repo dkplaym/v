@@ -18,5 +18,5 @@ mv /tmp/hosts /etc/
 
 killall -9 ktclient
 
-nohup /tools/ktclient -l 127.0.0.1:19393 -r dkvps:19393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46 >/dev/null 2>&1 &
+nohup /tools/checkproc.sh 3 ktclient /tools/ktclient -l 127.0.0.1:19393 -r dkvps:19393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46  &
 
