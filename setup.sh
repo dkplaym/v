@@ -308,25 +308,30 @@ echo -e "\n\n#$MARK" >> $F
 
 runservice()
 {       
-        sysctl -w net.ipv4.ip_forward=1
-        
+    sysctl -w net.ipv4.ip_forward=1
+    sysctl -w net.ipv6.conf.all.disable_ipv6=1
+
 	result=$(iptables -L -t  nat -v -n  | grep MASQUE)
-        if [[ "$result" != "" ]]
-        then    
-                echo $result 
-                echo "ignore run iptables"
-        else    
-		e=$(head -n 1 /tools/interface)        
-	        iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o $e  -j MASQUERADE
-        fi
-	
+    if [[ "$result" != "" ]]
+    then    
+            echo $result 
+            echo "ignore run iptables"
+    else    
+    e=$(head -n 1 /tools/interface)        
+        iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o $e  -j MASQUERADE
+    fi
+
 	getgitfile /tools/ss-server https://github.com/dkplaym/v/raw/master/ss-server
-	killall -9 ss-server
-        nohup /tools/ss-server -u -p 9393 -k $ENC_SSKEY -m aes-256-cfb  >/dev/null 2>&1   &
-        
-        service strongswan restart
-        service xl2tpd restart
-        service bind9 restart
+    killall -9 ss-server
+    nohup /tools/ss-server -s 127.0.0.1 -p 9393 -k $ENC_SSKEY -m aes-256-cfb  >/dev/null 2>&1   &
+    
+    gitgitfile /tools/ktserver https://github.com/dkplaym/v/raw/master/ktserver
+    killall -9 ktserver
+    nohup ./ktserver -l :19393 -t 127.0.0.1:9393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46 > /dev/null 2>&1 &
+
+    service strongswan restart
+    service xl2tpd restart
+    #service bind9 restart
 }
 
 append_sendmail(){
