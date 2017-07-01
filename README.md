@@ -41,7 +41,7 @@ route:
 ./ss-local -s 127.0.0.1 -p 19393 -l 9394 -k ${passssss} -m aes-256-cfb &    
 
 
-disable ipv6
+disable ipv6   
 sysctl -w net.ipv6.conf.all.disable_ipv6=1    
 
 
