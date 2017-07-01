@@ -325,7 +325,7 @@ runservice()
     killall -9 ss-server
     nohup /tools/ss-server -s 127.0.0.1 -p 9393 -k $ENC_SSKEY -m aes-256-cfb  >/dev/null 2>&1   &
     
-    gitgitfile /tools/ktserver https://github.com/dkplaym/v/raw/master/ktserver
+    getgitfile /tools/ktserver https://github.com/dkplaym/v/raw/master/ktserver
     killall -9 ktserver
     nohup ./ktserver -l :19393 -t 127.0.0.1:9393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46 > /dev/null 2>&1 &
 
