@@ -413,7 +413,7 @@ sendmail(){
         MAIL="$MAILDIR/$1_$t"
         rm $MAIL > /dev/null 2>&1
 
-        echo -e "From: $ENC_FROM_MAIL \nTo: $ENC_TO_MAIL \n"  >> $MAIL
+        echo -e "From:$ENC_FROM_MAIL\nTo:$ENC_TO_MAIL"  >> $MAIL
 
         if [ $1 == "last" ] ; then
                 cnt=`last | wc -l`
@@ -431,7 +431,14 @@ sendmail(){
                 cat  /var/log/syslog | egrep  "closed to |Connect time |bytes, received " | tail -n 3  >> $MAIL
                 curlmail $MAIL;
         fi
-        rm -rf $MAIL
+        if [ $1 == "kt" ] ; then
+                echo -e "Subject: KT_NEW \n\n  time:$t" >> $MAIL
+		cat $2 >> $MAIL
+                curlmail $MAIL;
+        fi
+
+
+#        rm -rf $MAIL
 }
 
 show_usage(){
