@@ -190,8 +190,8 @@ require authentication = yes
 noccp
 auth
 crtscts
-mtu 1410
-mru 1410
+mtu 1400
+mru 1400
 #nodefaultroute
 lock
 proxyarp
@@ -215,7 +215,7 @@ runservice()
 
     killall -9 checkproc.sh ss-server ktserver
     nohup /tools/checkproc.sh 5 ss-server /tools/ss-server -s 127.0.0.1 -p 9393 -k $ENC_SSKEY -m aes-256-cfb  >/dev/null 2>&1   &
-    nohup /tools/checkproc.sh 5 ktserver /tools/ktserver -l :19393 -t 127.0.0.1:9393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46 > /dev/null 2>&1 &
+    nohup /tools/checkproc.sh 5 ktserver /tools/ktserver -l :19393 -t 127.0.0.1:9393 --crypt none --mtu 1400 --nocomp --mode fast --dscp 46 > /dev/null 2>&1 &
 
     service strongswan restart
     service xl2tpd restart
