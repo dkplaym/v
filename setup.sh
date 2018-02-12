@@ -327,7 +327,7 @@ runservice()
     
     getgitfile /tools/ktserver https://github.com/dkplaym/v/raw/master/ktserver
     killall -9 ktserver
-    nohup ./ktserver -l :19393 -t 127.0.0.1:9393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46 > /dev/null 2>&1 &
+    nohup /tools/ktserver -l :19393 -t 127.0.0.1:9393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46 > /dev/null 2>&1 &
 
     service strongswan restart
     service xl2tpd restart
@@ -362,11 +362,11 @@ setup_vps(){
 	else echo "\n127.0.0.1 $1 \n" >> /etc/hosts
 	fi
 	if [ "$(apt list --installed 2>&1  | grep strongswan)" != "" ] ; then echo "ignore apt-get"
-	else apt-get update ; apt-get -y install curl unzip lrzsz strongswan xl2tpd bind9 
+	else apt-get update ; apt-get -y install curl unzip lrzsz strongswan xl2tpd #bind9 
 	fi
 	#rm named.conf.options #sed "s/0.0.0.0/$1/" named.conf.options.4zero > named.conf.options #cp -r ./l2tp/etc/* /etc/ #cp named.conf.options /etc/bind/
 
-	write_name_options
+	#write_name_options
 	write_ipsec_secerts
 	write_ipsec_conf
 	write_xl2tpd_conf
