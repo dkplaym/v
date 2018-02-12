@@ -21,7 +21,7 @@ do
    	fi
 done
 
-count=`expr 86400 /2 / $1 `
+count=$((86400/2/$1))
 #count=4
 i=0
 while true                           
@@ -45,7 +45,7 @@ do
         else               
                 echo "False"   
 		echo $cmd
-		$cmd &
+		nohup $cmd  >/dev/null 2>&1  &
         fi     
 	
 	sleep $1
