@@ -21,8 +21,13 @@ bakpath(){
 
 writeConfig(){
 	if [[ "$( ls -l $1  2>&1 | grep "No such file" )" == "" ]]  ; then cp  $1 `bakpath` ;   fi 
-	echo "$2"  > $1
-	echo -e "\n\n## by dk -- `date  +%y_%m_%d_%H_%M_%S` "  >> $1  
+	echo -e "$2"  > $1
+#	echo -e "\n\n;## by dk -- `date  +%y_%m_%d_%H_%M_%S` "  >> $1  
+	
+#fuck the xl2tpd.conf ! only support ";" for comment 
+#	if [[ $1 == "/etc/xl2tpd/xl2tpd.conf" ]] ; then echo -e "\n\n;## by dk -- `date  +%y_%m_%d_%H_%M_%S` "  >> $1 ;
+#	else echo -e "\n\n## by dk -- `date  +%y_%m_%d_%H_%M_%S` "  >> $1
+#	fi
 }
 
 getgitfile(){
@@ -78,10 +83,11 @@ append_sendmail(){
 	result=$(cat $1 | grep $THISFILE )
 	if [ "$result" != "" ] ; then
 		echo -e "ignore $1  ____________ $result \n\n"
-	fi	
-	cp $1 `bakpath`
-	echo -e "\n\n" >> $1
-	echo  $2 >> $1
+	else	
+		cp $1 `bakpath`
+		echo -e "\n\n" >> $1
+		echo  $2 >> $1
+	fi
 }
 
 #####################################################################################################################################################################
@@ -159,7 +165,8 @@ conn L2TP-PSK
     leftfirewall=no
     rightprotoport=17/%any
     type=transport
-    auto=add '
+    auto=add 
+'
 
  	writeConfig  "/etc/xl2tpd/xl2tpd.conf" '
 [global]
@@ -173,7 +180,8 @@ pppoptfile = /etc/ppp/options.xl2tpd
 ppp debug = yes
 require chap = yes
 refuse pap = yes
-require authentication = yes ' 
+require authentication = yes 
+' 
         
 
 	writeConfig "/etc/ppp/options.xl2tpd" '
@@ -187,7 +195,8 @@ lock
 proxyarp
 silent
 ms-dns 8.8.8.8
-ms-dns 8.8.4.4 '
+ms-dns 8.8.4.4 
+'
 
 	append_sendmail /etc/ppp/ip-up   "/tools/$THISFILE mail on \$PEERNAME"
 	append_sendmail /etc/ppp/ip-down "/tools/$THISFILE mail off \$PEERNAME"
@@ -199,7 +208,7 @@ runservice()
     sysctl -w net.ipv6.conf.all.disable_ipv6=1
 
     if [[ "$(iptables -L -t  nat -v -n  | grep MASQUE)" == "" ]] ; then    
-	    iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o $$(head -n 1 /tools/interface)  -j MASQUERADE
+	    iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o $(head -n 1 /tools/interface)  -j MASQUERADE
     fi
 
     killall -9 ss-server
@@ -214,11 +223,11 @@ runservice()
 
 setup_vps(){
 	cp /usr/share/zoneinfo/Asia/Shanghai  /etc/localtime    # ntpdate time.windows.com	
-	echo $2 >> /tools/interface
+	echo $2 > /tools/interface
 
 	if [ "$(cat /etc/hostname | grep "^$1")" == "" ] ; then echo "$1" > /etc/hostname  ; fi
 
-	if [ "$(cat /etc/hosts | grep "$1")" == "" ] ; then echo "\n127.0.0.1 $1 \n" >> /etc/hosts ; fi
+	if [ "$(cat /etc/hosts | grep "$1")" == "" ] ; then echo -e "\n127.0.0.1 $1 \n" >> /etc/hosts ; fi
 
 	apt-get update;
 	if [ "$(apt list --installed 2>&1  | grep curl)" == "" ] ; then apt-get -y install curl ; fi 
