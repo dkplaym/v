@@ -111,6 +111,8 @@ debug
 localip 192.168.10.1
 remoteip 192.168.10.234-238,192.168.10.245  '
 
+	modprobe nf_conntrack_pptp
+	modprobe ip_nat_pptp
 	service pptpd restart
 }
 
@@ -130,7 +132,7 @@ options {
      allow-query     {  any; };
      recursion yes;
      auth-nxdomain no;    # conform to RFC1035
-     listen-on port 53553 {127.0.0.1;};
+     listen-on port 53 {127.0.0.1;};
 };	
 ' 
 	service bind9 restart
@@ -211,11 +213,9 @@ runservice()
 	    iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o $(head -n 1 /tools/interface)  -j MASQUERADE
     fi
 
-    killall -9 ss-server
-    nohup /tools/ss-server -s 127.0.0.1 -p 9393 -k $ENC_SSKEY -m aes-256-cfb  >/dev/null 2>&1   &
-
-    killall -9 ktserver
-    nohup /tools/ktserver -l :19393 -t 127.0.0.1:9393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46 > /dev/null 2>&1 &
+    killall -9 checkproc.sh ss-server ktserver
+    nohup /tools/checkproc.sh 5 ss-server /tools/ss-server -s 127.0.0.1 -p 9393 -k $ENC_SSKEY -m aes-256-cfb  >/dev/null 2>&1   &
+    nohup /tools/checkproc.sh 5 ktserver /tools/ktserver -l :19393 -t 127.0.0.1:9393 --crypt none --mtu 1200 --nocomp --mode fast2 --dscp 46 > /dev/null 2>&1 &
 
     service strongswan restart
     service xl2tpd restart
@@ -249,6 +249,8 @@ setup_vps(){
 
 	getgitfile /tools/ss-server https://github.com/dkplaym/v/raw/master/ss-server
     getgitfile /tools/ktserver https://github.com/dkplaym/v/raw/master/ktserver
+	getgitfile /tools/ktserver https://github.com/dkplaym/v/raw/master/checkproc.sh
+
 
 	runservice;
 }
@@ -293,6 +295,7 @@ echo -e "
 vps [hostname] [interface]		//init vps  give hostname   
 sshport	[port]				//change sshd port 
 pptpd					//setup pptpd for vps
+named 				//setup named for vps  
 run					//restart all service 
 
 encfile					//enc info file to git
