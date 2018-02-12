@@ -231,9 +231,12 @@ setup_vps(){
 
 	apt-get update;
 	if [ "$(apt list --installed 2>&1  | grep curl)" == "" ] ; then apt-get -y install curl ; fi 
-	if [ "$(apt list --installed 2>&1  | grep curl)" == "" ] ; then apt-get -y install wget ; fi 
-	if [ "$(apt list --installed 2>&1  | grep curl)" == "" ] ; then apt-get -y install unzip ; fi 
-	if [ "$(apt list --installed 2>&1  | grep curl)" == "" ] ; then apt-get -y install lrzsz ; fi 
+	if [ "$(apt list --installed 2>&1  | grep wget)" == "" ] ; then apt-get -y install wget ; fi 
+	if [ "$(apt list --installed 2>&1  | grep unzip)" == "" ] ; then apt-get -y install unzip ; fi 
+	if [ "$(apt list --installed 2>&1  | grep lrzsz)" == "" ] ; then apt-get -y install lrzsz ; fi 
+	if [ "$(apt list --installed 2>&1  | grep psmisc)" == "" ] ; then apt-get -y install psmisc ; fi 
+	if [ "$(apt list --installed 2>&1  | grep tcpdump)" == "" ] ; then apt-get -y install tcpdump ; fi 
+
 
 	getencfile
 	append_sendmail $HOME/.bashrc "/tools/$THISFILE mail last"
@@ -249,7 +252,7 @@ setup_vps(){
 
 	getgitfile /tools/ss-server https://github.com/dkplaym/v/raw/master/ss-server
     getgitfile /tools/ktserver https://github.com/dkplaym/v/raw/master/ktserver
-	getgitfile /tools/ktserver https://github.com/dkplaym/v/raw/master/checkproc.sh
+	getgitfile /tools/checkproc.sh https://github.com/dkplaym/v/raw/master/checkproc.sh
 
 
 	runservice;
