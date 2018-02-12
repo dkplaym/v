@@ -367,6 +367,12 @@ if [ $1 = 'pptpd' ] ; then
 	exit 1;
 fi
 
+if [ $1 = 'named' ] ; then
+	setup_named;
+	exit 1;
+fi
+
+
 if [ $1 = 'sshport' ] ; then
 	if [ "$2" = "" ]; then 
 		echo "give me the port" 
