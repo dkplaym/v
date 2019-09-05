@@ -11,11 +11,13 @@ from http.server import HTTPServer
 import socketserver 
 import sys
 import datetime
-
-SELF_PATH=os.path.realpath(__file__)
-cmdDict = collections.OrderedDict()
+import fcntl
+import os
+import pyinotify
+import _thread 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmdDict = collections.OrderedDict()
 #DEFINE_BEGIN 
 
 cmdDict['restartNET'] =  'killall -9 dnsmasq pdnsd ss-tunnel ss-local ss-redir ktclient ; sleep 5  ; ps aux  | grep tools/net | grep -v check ; ' ;
@@ -45,6 +47,47 @@ def readDefine( filePath ,  cmddict  ):
         if not line.startswith("cmdDict"): continue
         s = line.split('\'')
         cmddict[s[1]] =s[3]
+        print("readDefine : {} -> {}".format(s[1] ,  s[3])  )
+
+SELF_PATH=os.path.realpath(__file__)
+class MyEventHandler(pyinotify.ProcessEvent):
+    def process_IN_MODIFY(self, event):
+        if(  __file__ != event.name  ): return
+
+        time.sleep(5)
+        global cmdDict , SELF_PATH
+        cmd = collections.OrderedDict()
+        readDefine( SELF_PATH ,  cmd  ) 
+        cmdDict = cmd
+        print("After Read Define : cmdDcit: {}".format(len(cmdDict)))
+        
+ 
+
+def watchThread(path):
+    try:
+        while True:
+            if not os.path.isdir(path):
+                print("error path: " + path)
+                return
+
+            wm = pyinotify.WatchManager()
+            eh = MyEventHandler()
+            notifier = pyinotify.Notifier(wm, eh)
+            wm.add_watch(path, pyinotify.IN_MODIFY, rec=True)
+            notifier.loop()
+    except Exception as e:
+        print(str(e))
+        return
+
+
+def startWatch():
+    global cmdDict , SELF_PATH
+    readDefine( SELF_PATH ,  cmdDict  ) #init it first
+    try:
+        _thread.start_new_thread( watchThread,  (os.path.dirname(SELF_PATH), ) )
+    except:
+        print ("Error: unable to start watch path thread")
+        exit(1)
 
 
 tempButton = '''          
@@ -90,17 +133,16 @@ def runCmd(cmd):
 
 class SharpSignTemplate(Template):  delimiter = '###'
 def procHtml(path):
-    cmdd = collections.OrderedDict()
-    readDefine(SELF_PATH , cmdd)
+    global cmdDict 
 
     if path is None or path == '/':
         bu = ''
-        for c in cmdd.keys():
+        for c in cmdDict.keys():
             bu += SharpSignTemplate(tempButton).substitute({"key": c , "word": c})
 
         return SharpSignTemplate(tempHtml).substitute({"bu": bu})
 
-    value = cmdd.get(path.split('/')[1]) 
+    value = cmdDict.get(path.split('/')[1]) 
     if  value is not None :
         ret = runCmd(value)
         return str(ret).replace('\\n', '<br/>')
@@ -160,6 +202,8 @@ if ( len(sys.argv) < 2 )   and  len(sys.argv)  != 4  :
     
 if len(sys.argv) == 4 :
     daemonInit(sys.argv[2] , sys.argv[3])
+
+startWatch()
 
 #HTTPServer(('192.168.0.1', 8000), handler).serve_forever()
 #server = ThreadedHTTPServer(('0.0.0.0', 8000), handler)

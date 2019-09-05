@@ -4,19 +4,19 @@ from http.server import HTTPServer, CGIHTTPRequestHandler  , SimpleHTTPRequestHa
 import subprocess
 from string import Template
 import collections
-import os
 import time
 import threading
-from http.server import HTTPServer
 import socketserver 
 from socket import *
 import sys
 import datetime
 import fcntl
+import os
+import pyinotify
+import _thread 
 
-SELF_PATH=os.path.realpath(__file__)
-cmdDict = collections.OrderedDict()
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+cmdDict = collections.OrderedDict()
 #DEFINE_BEGIN 
 
 cmdDict['runCmd.py'] =  '''5;-;86400;-;python3 /home/dk/8000/runCmd.py 0.0.0.0;-;ps aux | grep python | grep runCmd.py| grep -v sudo | grep -v grep  ''' ;
@@ -43,6 +43,31 @@ def readDefine( filePath ,  cmddict  ):
         content = line.split('\'\'\'')[1]
         arr =  content.split(';-;')
         cmddict[cmdName] =[ int(arr[0]) , int(arr[1])  , arr[2] , arr[3]   ]
+        print("readDefine:  {} ->  {}".format(cmdName , cmddict[cmdName]))
+
+fileNotified = False
+class MyEventHandler(pyinotify.ProcessEvent):
+    def process_IN_MODIFY(self, event):
+        if(  __file__ != event.name  ): return
+        global fileNotified
+        print(fileNotified)
+        fileNotified = True
+ 
+def watchThread(path):
+    try:
+        while True:
+            if not os.path.isdir(path):
+                print("error path: " + path)
+                return
+
+            wm = pyinotify.WatchManager()
+            eh = MyEventHandler()
+            notifier = pyinotify.Notifier(wm, eh)
+            wm.add_watch(path, pyinotify.IN_MODIFY, rec=True)
+            notifier.loop()
+    except Exception as e:
+        print(str(e))
+        return
 
 def runCmd(cmd):
     try:
@@ -50,7 +75,6 @@ def runCmd(cmd):
     except subprocess.CalledProcessError as exc:
         print(exc)
         return  ""
-
 
 def killProc(name, psCmd):
     psstr = runCmd(psCmd)
@@ -76,10 +100,24 @@ def checkLoop():
     lastCheck =  dict()
     lastReboot = dict()
     cmd = collections.OrderedDict()
+    SELF_PATH=os.path.realpath(__file__)
+    readDefine( SELF_PATH ,  cmd  ) #init it first
+    try:
+        _thread.start_new_thread( watchThread,  (os.path.dirname(SELF_PATH), ) )
+    except:
+        print ("Error: unable to start watch path thread")
+        exit(1)
+
+    global fileNotified
     while 1 :
+        if fileNotified:
+            print("file notified , readDefine: OLD size:{}".format(len(cmd)))
+            readDefine( SELF_PATH ,  cmd  )
+            fileNotified = False
+            print("file notified , AFTER  readDefine: NEW  size:{}".format(len(cmd)))
+
         sys.stdout.flush()  
         time.sleep(1)
-        readDefine(SELF_PATH , cmd)
         now = int(time.time())
         for c in cmd.keys():
             arr = cmd.get(c)
@@ -157,7 +195,12 @@ if ( len(sys.argv)  > 1 )   and   (  len(sys.argv)  < 3  or len(sys.argv) > 4)  
 if len(sys.argv) == 3 :
     daemonInit(sys.argv[1] , sys.argv[2])
 
+
+
 pidfile = checkSingleton( 'checkProc.pid' if len(sys.argv)  < 4  else  sys.argv[3]  ) # must be define and keep var pidfile for holding file lock
 
-checkLoop()
 
+
+
+checkLoop()
+ 
